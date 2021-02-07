@@ -40,7 +40,9 @@ export class Engine {
     return this.#delta;
   }
 
-  constructor({ scene, target = 0 }: Partial<{ scene: Scene, target: number }>) {
+  constructor(
+    { scene, target = 0 }: Partial<{ scene: Scene; target: number }>,
+  ) {
     this.scene = scene;
     this.target = target;
   }

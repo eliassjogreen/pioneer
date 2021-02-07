@@ -5,7 +5,7 @@ export class PaneBuffer extends Component {
 
   constructor(size: number) {
     super();
-    
+
     this.buffer = new Uint8Array(size);
   }
 }

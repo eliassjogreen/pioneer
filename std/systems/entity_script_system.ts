@@ -4,7 +4,7 @@ import { EntityScript } from "../components/entity_script.ts";
 
 export class EntityScriptSystem extends System {
   readonly queries = {
-    scripted: has(EntityScript)
+    scripted: has(EntityScript),
   };
 
   start(queries: EntityQueue): void {
@@ -12,7 +12,7 @@ export class EntityScriptSystem extends System {
       entity.components.get(EntityScript).start?.(entity);
     }
   }
-  
+
   stop(queries: EntityQueue): void {
     for (const entity of queries["scripted"]) {
       entity.components.get(EntityScript).stop?.(entity);
@@ -30,7 +30,7 @@ export class EntityScriptSystem extends System {
       entity.components.get(EntityScript).added?.(entity);
     }
   }
-  
+
   removed(queries: EntityQueue): void {
     for (const entity of queries["scripted"]) {
       entity.components.get(EntityScript).removed?.(entity);
@@ -40,7 +40,7 @@ export class EntityScriptSystem extends System {
   enter(entity: Entity): void {
     entity.components.get(EntityScript).enter?.(entity);
   }
-  
+
   exit(entity: Entity): void {
     entity.components.get(EntityScript).exit?.(entity);
   }

@@ -85,9 +85,6 @@ export class Frame {
   /** fills the buffer with the specified color */
   fill(c: number) {
     this.uint32array.fill(c);
-    // for (let i = 0; i < this.bytes; i += 4) {
-    //   this.#view.setUint32(i, c);
-    // }
   }
 
   /** copies the buffer to specified index */

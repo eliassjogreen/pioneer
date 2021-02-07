@@ -53,6 +53,10 @@ export class Vector2 implements Point {
     return new Vector2(1, 0);
   }
 
+  clone(): Vector2 {
+    return new Vector2(this);
+  }
+
   mag(): number {
     return Math.hypot(this.x, this.y);
   }
@@ -66,7 +70,25 @@ export class Vector2 implements Point {
   }
 
   normalize(): Vector2 {
-    return this.set(this.div(this.mag()));
+    return this.set(this.normal());
+  }
+
+  angle(): number {
+    return Math.atan2(this.x, this.y);
+  }
+
+  clamp(length: number): Vector2 {
+    return this.set(this.normal().mul(length));
+  }
+
+  dot(other: Vector2): number {
+    const { x, y } = this.mul(other);
+    return x + y;
+  }
+
+  cross(other: Vector2): number {
+    const { x, y } = this.mul(other);
+    return x - y;
   }
 
   set(target: Vector2): Vector2;

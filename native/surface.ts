@@ -5,7 +5,7 @@ import { Frame } from "./frame.ts";
 export class Surface {
   #width: number;
   #height: number;
-  
+
   pane: Pane;
   frame: Frame;
 

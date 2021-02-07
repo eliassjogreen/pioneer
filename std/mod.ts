@@ -10,6 +10,7 @@ export * from "./components/entity_script.ts";
 export * from "./systems/entity_script_system.ts";
 
 export * from "./queries/all.ts";
+export * from "./queries/some.ts";
 export * from "./queries/has.ts";
 export * from "./queries/lacks.ts";
 export * from "./queries/named.ts";

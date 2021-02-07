@@ -21,7 +21,9 @@ export class EntityContainer {
   has(name: string): boolean;
   has(entity: Entity): boolean;
   has(entityOrName: string | Entity): boolean {
-    const name = typeof entityOrName === "string" ? entityOrName : entityOrName.name;
+    const name = typeof entityOrName === "string"
+      ? entityOrName
+      : entityOrName.name;
 
     return this.#entities.has(name);
   }
@@ -29,8 +31,10 @@ export class EntityContainer {
   /** Returns the specified Entity from this container */
   get(name: string): Entity | undefined;
   get(entity: Entity): Entity | undefined;
-  get(entityOrName: string | Entity): Entity | undefined  {
-    const name = typeof entityOrName === "string" ? entityOrName : entityOrName.name;
+  get(entityOrName: string | Entity): Entity | undefined {
+    const name = typeof entityOrName === "string"
+      ? entityOrName
+      : entityOrName.name;
 
     return this.#entities.get(name);
   }
@@ -71,8 +75,12 @@ export class EntityContainer {
   remove(name: string): boolean;
   remove(entity: Entity): boolean;
   remove(entityOrName: string | Entity): boolean {
-    const name = typeof entityOrName === "string" ? entityOrName : entityOrName.name;
-    const entity = typeof entityOrName === "string" ? this.get(entityOrName) : entityOrName;
+    const name = typeof entityOrName === "string"
+      ? entityOrName
+      : entityOrName.name;
+    const entity = typeof entityOrName === "string"
+      ? this.get(entityOrName)
+      : entityOrName;
 
     if (entity) {
       for (const system of this.#scene.systems.all()) {

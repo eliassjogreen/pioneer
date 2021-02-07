@@ -13,12 +13,12 @@ export class PaneSystem extends System {
 
   readonly queries = {
     events: has(PaneEvents),
-    buffer: has(PaneBuffer)
+    buffer: has(PaneBuffer),
   };
 
   constructor(width: number, height: number) {
     super();
-    
+
     this.frameLength = width * height * 4;
 
     const size = { logical: { width, height } };
