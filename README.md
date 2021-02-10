@@ -36,4 +36,4 @@ game engine with both browser and
 
 ### Licence
 
-Copyright 2020, Elias Sjögreen. All rights reserved. MIT license.
+Copyright 2021, Elias Sjögreen. All rights reserved. MIT license.
