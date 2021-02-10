@@ -39,7 +39,7 @@ export class PaneSystem extends System {
       entity.components.get(PaneEvents).events = events;
     }
 
-    if (queries["buffer"][0]) {
+    if (queries["buffer"][0] !== undefined) {
       const entity = queries["buffer"][0];
       this.#pane.drawFrame(entity.components.get(PaneBuffer).buffer);
       this.#pane.renderFrame();

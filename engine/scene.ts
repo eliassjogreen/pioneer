@@ -3,7 +3,7 @@ import { SystemContainer } from "./system_container.ts";
 
 export class Scene {
   /** A scene identifier name */
-  public readonly name: string;
+  readonly name: string;
 
   /** All of this Scenes entities */
   entities: EntityContainer;
