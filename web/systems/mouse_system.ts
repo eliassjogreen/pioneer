@@ -2,12 +2,12 @@
 
 import { EntityQueue, System } from "../../engine/mod.ts";
 import { Mouse } from "../../std/components/mouse.ts";
-import { has, Point } from "../../std/mod.ts";
+import { has, Point2 } from "../../std/mod.ts";
 
 export class MouseInputSystem extends System {
   #element: HTMLElement;
 
-  #position: Point;
+  #position: Point2;
   #buttons: Set<number>;
   #left: boolean;
   #middle: boolean;

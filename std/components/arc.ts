@@ -1,8 +1,9 @@
 import { Component } from "../../engine/mod.ts";
+import { Angle, Rad } from "../deps.ts";
 
 export class Arc extends Component {
   radius = 1;
-  startAngle = 0;
-  endAngle = 2 * Math.PI;
+  startAngle: Angle = new Rad();
+  endAngle: Angle = new Rad(Rad.turn);
   clockwise = true;
 }

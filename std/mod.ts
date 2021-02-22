@@ -15,5 +15,5 @@ export * from "./queries/has.ts";
 export * from "./queries/lacks.ts";
 export * from "./queries/named.ts";
 
-export * from "./vector2.ts";
 export * from "./common.ts";
+export * from "./deps.ts";

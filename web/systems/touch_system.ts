@@ -3,13 +3,13 @@
 
 import { EntityQueue, System } from "../../engine/mod.ts";
 import { Touch } from "../../std/components/touch.ts";
-import { has, Point } from "../../std/mod.ts";
+import { has, Point2 } from "../../std/mod.ts";
 
 export class TouchInputSystem extends System {
   #element: HTMLElement;
 
-  #touches: Map<number, Point>;
-  #changed: Map<number, Point>;
+  #touches: Map<number, Point2>;
+  #changed: Map<number, Point2>;
 
   public readonly queries = {
     "all": has(Touch),

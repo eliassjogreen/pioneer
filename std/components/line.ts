@@ -1,5 +1,5 @@
 import { Component } from "../../engine/mod.ts";
-import { Vector2 } from "../vector2.ts";
+import { Vector2 } from "../deps.ts";
 
 export class Line extends Component {
   start: Vector2 = Vector2.zero();
