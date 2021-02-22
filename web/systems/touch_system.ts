@@ -1,3 +1,6 @@
+/// <reference lib="dom" />
+/// <reference lib="dom.iterable" />
+
 import { EntityQueue, System } from "../../engine/mod.ts";
 import { Touch } from "../../std/components/touch.ts";
 import { has, Point } from "../../std/mod.ts";

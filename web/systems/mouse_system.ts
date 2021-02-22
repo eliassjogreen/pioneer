@@ -1,3 +1,5 @@
+/// <reference lib="dom" />
+
 import { EntityQueue, System } from "../../engine/mod.ts";
 import { Mouse } from "../../std/components/mouse.ts";
 import { has, Point } from "../../std/mod.ts";

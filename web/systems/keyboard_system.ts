@@ -1,3 +1,5 @@
+/// <reference lib="dom" />
+
 import { EntityQueue, System } from "../../engine/mod.ts";
 import { Keyboard } from "../../std/components/keyboard.ts";
 import { has } from "../../std/mod.ts";
