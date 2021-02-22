@@ -33,10 +33,12 @@ export class PaneSystem extends System {
   update(queries: EntityQueue, delta: number) {
     const events = Pane.Step();
 
-    // console.log(queries);
-
     for (const entity of queries["events"]) {
       entity.components.get(PaneEvents).events = events;
+    }
+
+    if (queries["buffer"].length !== 1) {
+      throw new RangeError("Expected exactly one entity with the PaneBuffer component");
     }
 
     if (queries["buffer"][0] !== undefined) {
