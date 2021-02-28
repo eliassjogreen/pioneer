@@ -10,8 +10,6 @@ export class ComponentContainer {
   }
 
   /** Checks if this contains the specified component */
-  has<T extends Component>(component: ComponentConstructor<T>): boolean;
-  has(name: string): boolean;
   has<T extends Component>(
     componentOrName: ComponentConstructor<T> | string,
   ): boolean;
@@ -26,8 +24,6 @@ export class ComponentContainer {
   }
 
   /** Returns a Component of the same name as the specified ComponentConstructor */
-  get<T extends Component>(component: ComponentConstructor<T>): T;
-  get<T extends Component>(name: string): T;
   get<T extends Component>(
     componentOrName: ComponentConstructor<T> | string,
   ): T {
@@ -46,8 +42,6 @@ export class ComponentContainer {
   }
 
   /** Removes a Component of the same type as the specified ComponentConstructor */
-  remove<T extends Component>(component: ComponentConstructor<T>): boolean;
-  remove(name: string): boolean;
   remove<T extends Component>(
     componentOrName: ComponentConstructor<T> | string,
   ): boolean {
