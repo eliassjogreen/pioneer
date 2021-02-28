@@ -18,8 +18,6 @@ export class EntityContainer {
   }
 
   /** Checks if this contains an Entity with the specified name */
-  has(name: string): boolean;
-  has(entity: Entity): boolean;
   has(entityOrName: string | Entity): boolean {
     const name = typeof entityOrName === "string"
       ? entityOrName
@@ -29,8 +27,6 @@ export class EntityContainer {
   }
 
   /** Returns the specified Entity from this container */
-  get(name: string): Entity | undefined;
-  get(entity: Entity): Entity | undefined;
   get(entityOrName: string | Entity): Entity | undefined {
     const name = typeof entityOrName === "string"
       ? entityOrName
@@ -72,8 +68,6 @@ export class EntityContainer {
   }
 
   /** Removes an entity from this container */
-  remove(name: string): boolean;
-  remove(entity: Entity): boolean;
   remove(entityOrName: string | Entity): boolean {
     const name = typeof entityOrName === "string"
       ? entityOrName

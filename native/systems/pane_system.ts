@@ -38,7 +38,7 @@ export class PaneSystem extends System {
     }
 
     if (queries["buffer"].length !== 1) {
-      throw new RangeError("Expected exactly one entity with the PaneBuffer component");
+      throw new Error("Expected exactly one entity with the PaneBuffer component");
     }
 
     if (queries["buffer"][0] !== undefined) {

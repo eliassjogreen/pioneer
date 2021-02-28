@@ -31,8 +31,6 @@ export class SystemContainer {
   }
 
   /** Checks if this contains an System with the specified system */
-  has(name: string): boolean;
-  has(system: System): boolean;
   has(systemOrName: System | string): boolean {
     const name = typeof systemOrName === "string"
       ? systemOrName
@@ -42,8 +40,6 @@ export class SystemContainer {
   }
 
   /** Returns the specified System from this container */
-  get(name: string): System | undefined;
-  get(system: System): System | undefined;
   get(systemOrName: System | string): System | undefined {
     const name = typeof systemOrName === "string"
       ? systemOrName
@@ -68,8 +64,6 @@ export class SystemContainer {
   }
 
   /** Removes an system from this container */
-  remove(name: string): boolean;
-  remove(system: System): boolean;
   remove(systemOrName: System | string): boolean {
     const name = typeof systemOrName === "string"
       ? systemOrName
@@ -84,8 +78,6 @@ export class SystemContainer {
   }
 
   /** Start a system in this container */
-  start(name: string): void;
-  start(system: System): void;
   start(systemOrName: System | string): void {
     const system = typeof systemOrName === "string"
       ? this.get(systemOrName)
@@ -95,8 +87,6 @@ export class SystemContainer {
   }
 
   /** Stop a system in this container */
-  stop(name: string): void;
-  stop(system: System): void;
   stop(systemOrName: System | string): void {
     const system = typeof systemOrName === "string"
       ? this.get(systemOrName)
@@ -106,8 +96,6 @@ export class SystemContainer {
   }
 
   /** Update a system in this container */
-  update(name: string, delta: number): void;
-  update(system: System, delta: number): void;
   update(systemOrName: System | string, delta: number): void {
     const system = typeof systemOrName === "string"
       ? this.get(systemOrName)
