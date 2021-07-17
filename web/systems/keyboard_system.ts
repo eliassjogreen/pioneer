@@ -30,6 +30,7 @@ export class KeyboardSystem extends System {
         event.preventDefault();
       }
     });
+
     window.addEventListener("keyup", (event: KeyboardEvent) => {
       if (event.defaultPrevented) return;
 
@@ -42,7 +43,7 @@ export class KeyboardSystem extends System {
     });
   }
 
-  update(queries: EntityQueue, delta: number): void {
+  update(queries: EntityQueue, _delta: number): void {
     for (const entity of queries["all"]) {
       const component = entity.components.get(Keyboard);
 

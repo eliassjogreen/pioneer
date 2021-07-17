@@ -3,13 +3,13 @@
 
 import { EntityQueue, System } from "../../engine/mod.ts";
 import { Touch } from "../../std/components/touch.ts";
-import { has, Point2 } from "../../std/mod.ts";
+import { has, Vector2 } from "../../std/mod.ts";
 
 export class TouchInputSystem extends System {
   #element: HTMLElement;
 
-  #touches: Map<number, Point2>;
-  #changed: Map<number, Point2>;
+  #touches: Map<number, Vector2>;
+  #changed: Map<number, Vector2>;
 
   public readonly queries = {
     "all": has(Touch),
@@ -33,21 +33,27 @@ export class TouchInputSystem extends System {
     this.#touches.clear();
 
     for (const touch of event.touches) {
-      this.#touches.set(touch.identifier, {
-        x: touch.clientX - this.#element.offsetLeft,
-        y: touch.clientY - this.#element.offsetTop,
-      });
+      this.#touches.set(
+        touch.identifier,
+        new Vector2(
+          touch.clientX - this.#element.offsetLeft,
+          touch.clientY - this.#element.offsetTop,
+        ),
+      );
     }
 
     for (const touch of event.changedTouches) {
-      this.#changed.set(touch.identifier, {
-        x: touch.clientX - this.#element.offsetLeft,
-        y: touch.clientY - this.#element.offsetTop,
-      });
+      this.#changed.set(
+        touch.identifier,
+        new Vector2(
+          touch.clientX - this.#element.offsetLeft,
+          touch.clientY - this.#element.offsetTop,
+        ),
+      );
     }
   }
 
-  public update(entities: EntityQueue, delta: number): void {
+  public update(entities: EntityQueue, _delta: number): void {
     for (const entity of entities["all"]) {
       entity.components.get(Touch).touches = this.#touches;
       entity.components.get(Touch).changed = this.#changed;

@@ -1,8 +1,8 @@
 import { Component } from "../../engine/mod.ts";
-import { Point2 } from "../deps.ts";
+import { Vector2 } from "../deps.ts";
 
 export class Mouse extends Component {
-  position: Point2 = { x: 0, y: 0 };
+  position: Vector2 = Vector2.zero();
 
   buttons: Set<number> = new Set();
   left = false;

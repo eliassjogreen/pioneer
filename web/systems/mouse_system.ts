@@ -2,12 +2,12 @@
 
 import { EntityQueue, System } from "../../engine/mod.ts";
 import { Mouse } from "../../std/components/mouse.ts";
-import { has, Point2 } from "../../std/mod.ts";
+import { has, Vector2 } from "../../std/mod.ts";
 
 export class MouseInputSystem extends System {
   #element: HTMLElement;
 
-  #position: Point2;
+  #position: Vector2;
   #buttons: Set<number>;
   #left: boolean;
   #middle: boolean;
@@ -23,7 +23,7 @@ export class MouseInputSystem extends System {
 
     this.#element = element;
 
-    this.#position = { x: 0, y: 0 };
+    this.#position = Vector2.zero();
     this.#buttons = new Set();
     this.#left = false;
     this.#middle = false;
@@ -65,7 +65,7 @@ export class MouseInputSystem extends System {
     });
   }
 
-  update(queries: EntityQueue, delta: number): void {
+  update(queries: EntityQueue, _delta: number): void {
     for (const entity of queries["all"]) {
       const component = entity.components.get(Mouse);
 
