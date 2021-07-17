@@ -5,22 +5,26 @@ import { Keyboard } from "../../std/components/keyboard.ts";
 import { has } from "../../std/mod.ts";
 
 export class KeyboardSystem extends System {
+  #element: HTMLElement;
+
   #pressed: Set<string>;
   #justPressed: Set<string>;
   #justReleased: Set<string>;
 
-  readonly queries = {
+  queries = {
     "all": has(Keyboard),
   };
 
-  constructor(preventDefault = true) {
+  constructor(preventDefault = true, element: HTMLElement = document.body) {
     super();
+
+    this.#element = element;
 
     this.#pressed = new Set();
     this.#justPressed = new Set();
     this.#justReleased = new Set();
 
-    window.addEventListener("keydown", (event: KeyboardEvent) => {
+    this.#element.addEventListener("keydown", (event: KeyboardEvent) => {
       if (event.defaultPrevented) return;
 
       this.#justPressed.add(event.key);
@@ -31,7 +35,7 @@ export class KeyboardSystem extends System {
       }
     });
 
-    window.addEventListener("keyup", (event: KeyboardEvent) => {
+    this.#element.addEventListener("keyup", (event: KeyboardEvent) => {
       if (event.defaultPrevented) return;
 
       this.#justReleased.add(event.key);

@@ -13,12 +13,12 @@ export class MouseInputSystem extends System {
   #middle: boolean;
   #right: boolean;
 
-  public queries = {
+  queries = {
     "all": has(Mouse),
   };
 
   // deno-lint-ignore no-undef
-  constructor(element: HTMLElement = document.body) {
+  constructor(preventDefault = true, element: HTMLElement = document.body) {
     super();
 
     this.#element = element;
@@ -30,10 +30,19 @@ export class MouseInputSystem extends System {
     this.#right = false;
 
     this.#element.addEventListener("mousemove", (event: MouseEvent) => {
+      if (event.defaultPrevented) return;
+
       this.#position.x = event.clientX - this.#element.offsetLeft;
       this.#position.y = event.clientY - this.#element.offsetTop;
+
+      if (preventDefault) {
+        event.preventDefault();
+      }
     });
+
     this.#element.addEventListener("mousedown", (event: MouseEvent) => {
+      if (event.defaultPrevented) return;
+
       switch (event.button) {
         case 0:
           this.#left = true;
@@ -47,8 +56,15 @@ export class MouseInputSystem extends System {
       }
 
       this.#buttons.add(event.button);
+
+      if (preventDefault) {
+        event.preventDefault();
+      }
     });
+
     this.#element.addEventListener("mouseup", (event: MouseEvent) => {
+      if (event.defaultPrevented) return;
+
       switch (event.button) {
         case 0:
           this.#left = false;
@@ -62,6 +78,10 @@ export class MouseInputSystem extends System {
       }
 
       this.#buttons.delete(event.button);
+
+      if (preventDefault) {
+        event.preventDefault();
+      }
     });
   }
 

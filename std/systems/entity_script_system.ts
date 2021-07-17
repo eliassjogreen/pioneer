@@ -3,7 +3,7 @@ import { has } from "../../std/mod.ts";
 import { EntityScript } from "../components/entity_script.ts";
 
 export class EntityScriptSystem extends System {
-  readonly queries = {
+  queries = {
     scripted: has(EntityScript),
   };
 
