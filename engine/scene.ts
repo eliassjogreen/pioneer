@@ -18,21 +18,21 @@ export class Scene {
 
   /** A method for starting all of this Scenes systems on all of this Scenes Entities */
   start(): void {
-    for (const system of this.systems.all()) {
+    for (const system of this.systems) {
       this.systems.start(system);
     }
   }
 
   /** A method for stopping all of this Scenes systems on all of this Scenes Entities */
   stop(): void {
-    for (const system of this.systems.all()) {
+    for (const system of this.systems) {
       this.systems.stop(system);
     }
   }
 
   /** A method for updating all of this Scenes systems on all of this Scenes Entities */
   update(delta: number): void {
-    for (const system of this.systems.all()) {
+    for (const system of this.systems) {
       this.systems.update(system, delta);
     }
   }

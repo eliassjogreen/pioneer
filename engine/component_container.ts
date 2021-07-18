@@ -57,4 +57,8 @@ export class ComponentContainer {
 
     return this.#components.delete(name);
   }
+
+  [Symbol.iterator](): IterableIterator<Component> {
+    return this.#components.values();
+  }
 }

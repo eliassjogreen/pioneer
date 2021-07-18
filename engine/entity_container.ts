@@ -43,7 +43,7 @@ export class EntityContainer {
   query(query: Query): Entity[] {
     const entities = [];
 
-    for (const [, entity] of this.#entities) {
+    for (const entity of this.#entities.values()) {
       if (query(entity)) {
         entities.push(entity);
       }
@@ -57,7 +57,7 @@ export class EntityContainer {
     if (!this.has(entity)) {
       this.#entities.set(entity.name, entity);
 
-      for (const system of this.#scene.systems.all()) {
+      for (const system of this.#scene.systems) {
         const matches = this.#scene.systems.queryQueue(system);
 
         for (const query in matches) {
@@ -83,7 +83,7 @@ export class EntityContainer {
       : entityOrName;
 
     if (entity) {
-      for (const system of this.#scene.systems.all()) {
+      for (const system of this.#scene.systems) {
         const matches = this.#scene.systems.queryQueue(system);
 
         for (const query in matches) {
@@ -97,5 +97,9 @@ export class EntityContainer {
     }
 
     return this.#entities.delete(name);
+  }
+
+  [Symbol.iterator](): IterableIterator<[string, Entity]> {
+    return this.#entities.entries();
   }
 }

@@ -12,6 +12,7 @@ export * from "./components/sprite.ts";
 export * from "./components/text.ts";
 export * from "./components/touch.ts";
 export * from "./components/transform2.ts";
+export * from "./components/watch.ts";
 
 export * from "./queries/all.ts";
 export * from "./queries/some.ts";
@@ -20,6 +21,8 @@ export * from "./queries/lacks.ts";
 export * from "./queries/named.ts";
 
 export * from "./systems/entity_script_system.ts";
+export * from "./systems/watch_system.ts";
 
-export * from "./common.ts";
+export * from "./fnv1a.ts";
+
 export * from "./deps.ts";

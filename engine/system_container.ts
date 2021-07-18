@@ -52,11 +52,6 @@ export class SystemContainer {
     return this.#systems.get(name);
   }
 
-  /** Returns all the Systems in this container */
-  all(): System[] {
-    return [...this.#systems.values()];
-  }
-
   /** Adds an system to this container */
   add(system: System): void {
     const name = system.name;
@@ -114,5 +109,9 @@ export class SystemContainer {
       : systemOrName;
 
     system?.update?.(this.queryQueue(system), delta);
+  }
+
+  [Symbol.iterator](): IterableIterator<System> {
+    return this.#systems.values();
   }
 }
