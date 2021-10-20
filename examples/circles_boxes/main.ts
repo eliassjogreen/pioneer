@@ -40,28 +40,28 @@ const renderables = world.queries.register(
 // Systems
 function move(delta: number) {
   for (const entity of moving) {
-    const velocity = world.components.mutable(
+    world.components.mutate(
       entity,
-      velocityComponent,
-    ) as {
-      x: number;
-      y: number;
-    };
-    const position = world.components.mutable(
-      entity,
-      positionComponent,
-    ) as {
-      x: number;
-      y: number;
-    };
+      [velocityComponent, positionComponent],
+      ([velocity, position]: { x: number; y: number }[]) => {
+        position.x += velocity.x * delta;
+        position.y += velocity.y * delta;
 
-    position.x += velocity.x * delta;
-    position.y += velocity.y * delta;
-
-    if (position.x > width + SHAPE_HALF_SIZE) position.x = -SHAPE_HALF_SIZE;
-    if (position.x < -SHAPE_HALF_SIZE) position.x = width + SHAPE_HALF_SIZE;
-    if (position.y > height + SHAPE_HALF_SIZE) position.y = -SHAPE_HALF_SIZE;
-    if (position.y < -SHAPE_HALF_SIZE) position.y = height + SHAPE_HALF_SIZE;
+        if (position.x > width + SHAPE_HALF_SIZE) {
+          position.x = -SHAPE_HALF_SIZE;
+        }
+        if (position.x < -SHAPE_HALF_SIZE) {
+          position.x = width +
+            SHAPE_HALF_SIZE;
+        }
+        if (position.y > height + SHAPE_HALF_SIZE) {
+          position.y = -SHAPE_HALF_SIZE;
+        }
+        if (position.y < -SHAPE_HALF_SIZE) {
+          position.y = height + SHAPE_HALF_SIZE;
+        }
+      },
+    );
   }
 }
 

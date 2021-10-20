@@ -53,11 +53,18 @@ export class World {
         return this.#components.get(entity, component);
       }
     },
-    mutable: (entity: number, component: number) => {
-      const mask = 1 << component;
-      if ((this.#entities.get(entity) & mask) === mask) {
-        return this.#components.mutable(entity, component);
-      }
+    // mutable: (entity: number, component: number) => {
+    //   const mask = 1 << component;
+    //   if ((this.#entities.get(entity) & mask) === mask) {
+    //     return this.#components.mutable(entity, component);
+    //   }
+    // },
+    mutate: <T extends unknown[]>(
+      entity: number,
+      components: number[],
+      mutator: (components: T) => void,
+    ) => {
+      this.#components.mutate(entity, components, mutator);
     },
     remove: (entity: number, component: number) => {
       this.#components.remove(entity, component);
@@ -83,24 +90,3 @@ export class World {
     },
   };
 }
-
-// const w = new World();
-// const a = w.components.register(u8);
-// const b = w.components.register(u16);
-// const c = w.components.register(u32);
-// const e1 = w.entities.spawn();
-// w.components.set(e1, a, 0);
-// w.components.set(e1, b, 0xffff);
-// w.components.set(e1, c, 0xffffffff);
-// const e2 = w.entities.spawn();
-// w.components.set(e2, a, 0);
-// w.components.set(e2, b, 0xffff);
-// const e3 = w.entities.spawn();
-// w.components.set(e3, a, 0);
-// // const q: Query = { mask: (1 << a) | (1 << b) | (1 << c), entities: new Set() };
-// const q1 = w.queries.register((1 << a) | (1 << b) | (1 << c));
-// const q2 = w.queries.register((1 << a) | (1 << b));
-// const q3 = w.queries.register((1 << a));
-// // for (const store of w.components.query(0b111)) {
-// //   console.log(store?.get(e));
-// // }
