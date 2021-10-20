@@ -61,7 +61,9 @@ export class Components {
     components: number[],
     mutator: (components: T) => void,
   ) {
-    const values = components.map((component) => this.get(entity, component)) as T;
+    const values = components.map((component) =>
+      this.get(entity, component)
+    ) as T;
     mutator(values);
 
     for (let i = 0; i < components.length; i++) {
