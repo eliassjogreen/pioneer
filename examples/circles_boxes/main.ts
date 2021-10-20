@@ -38,12 +38,17 @@ const renderables = world.queries.register(
 );
 
 // Systems
-function move(delta: number) {
+function movement(delta: number) {
   for (const entity of moving) {
     world.components.mutate(
       entity,
       [velocityComponent, positionComponent],
-      ([velocity, position]: { x: number; y: number }[]) => {
+      (
+        [velocity, position]: [
+          { x: number; y: number },
+          { x: number; y: number },
+        ],
+      ) => {
         position.x += velocity.x * delta;
         position.y += velocity.y * delta;
 
@@ -141,7 +146,7 @@ function run() {
   const time = performance.now();
   const delta = time - previous;
 
-  move(delta);
+  movement(delta);
   render();
 
   previous = time;

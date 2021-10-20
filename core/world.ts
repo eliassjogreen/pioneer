@@ -48,10 +48,12 @@ export class World {
       );
     },
     get: (entity: number, component: number) => {
-      const mask = 1 << component;
-      if ((this.#entities.get(entity) & mask) === mask) {
+      if (this.components.has(entity, 1 << component)) {
         return this.#components.get(entity, component);
       }
+    },
+    has: (entity: number, mask: number) => {
+      return (this.#entities.get(entity) & mask) === mask;
     },
     // mutable: (entity: number, component: number) => {
     //   const mask = 1 << component;
