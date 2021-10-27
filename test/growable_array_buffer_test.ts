@@ -1,7 +1,5 @@
 import { assertEquals } from "./deps.ts";
-import {
-  GrowableArrayBuffer,
-} from "../core/growable_array_buffer.ts";
+import { GrowableArrayBuffer } from "../core/growable_array_buffer.ts";
 
 const inital = 8;
 
@@ -30,7 +28,7 @@ Deno.test({
     assertEquals(buffer.uint8array[0], 255);
 
     buffer.grow();
-    
+
     assertEquals(buffer.uint8array[0], 255);
     buffer.uint8array[0] = 0;
     assertEquals(buffer.uint8array[0], 0);
