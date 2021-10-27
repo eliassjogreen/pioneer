@@ -1,12 +1,17 @@
 /// <reference lib="dom" />
 
-import { World } from "../../core/mod.ts";
+import { Component, World } from "../../core/mod.ts";
 import { f64, Struct } from "https://deno.land/x/byte_type@0.1.5/mod.ts";
-import { reference } from "../../std/util/reference_type.ts";
+import {
+  TypeComponent,
+  TypeComponentStore,
+} from "../../core/components/type_component_store.ts";
+import { MapComponentStore } from "../../core/components/map_component_store.ts";
+import { ArrayComponentStore } from "../../core/components/array_component_store.ts";
 
 // Constants
 const SPEED_MULTIPLIER = 0.001;
-const NUM_ELEMENTS = 50;
+const NUM_ELEMENTS = 250;
 
 // Globals
 const canvas = document.querySelector("canvas") as HTMLCanvasElement;
@@ -18,78 +23,90 @@ const context = canvas.getContext("2d")!;
 const world = new World();
 
 // Components
-const positionType = new Struct({ x: f64, y: f64 });
-const movementComponent = world.components.register(
-  new Struct({ velocity: positionType, acceleration: positionType }),
-);
-const circleComponent = world.components.register(
-  new Struct({
-    velocity: positionType,
-    acceleration: positionType,
-    radius: f64,
-    position: positionType,
-  }),
-);
-const intersectingComponent = world.components.register(reference);
+class PositionComponent extends TypeComponent<{ x: number; y: number }> {
+  static type = new Struct({ x: f64, y: f64 });
+  value = { x: 0, y: 0 };
+}
+
+class VelocityComponent extends TypeComponent<{ x: number; y: number }> {
+  static type = new Struct({ x: f64, y: f64 });
+  value = { x: 0, y: 0 };
+}
+
+class AccelerationComponent extends TypeComponent<{ x: number; y: number }> {
+  static type = new Struct({ x: f64, y: f64 });
+  value = { x: 0, y: 0 };
+}
+
+class CircleComponent extends TypeComponent<{ radius: number }> {
+  static type = new Struct({ radius: f64 });
+  value = { radius: 0 };
+}
+
+class IntersectionComponent
+  extends Component<[number, number, number, number][]> {
+  value: [number, number, number, number][] = [];
+}
+
+world.components.register(PositionComponent, TypeComponentStore);
+world.components.register(VelocityComponent, TypeComponentStore);
+world.components.register(AccelerationComponent, TypeComponentStore);
+world.components.register(CircleComponent, TypeComponentStore);
+world.components.register(IntersectionComponent, ArrayComponentStore);
 
 // Queries
-const moving = world.queries.register(
-  (1 << movementComponent) | (1 << circleComponent),
-);
-const circles = world.queries.register(1 << circleComponent);
-const intersecting = world.queries.register(1 << intersectingComponent);
+const moving = world.queries.register([
+  VelocityComponent,
+  AccelerationComponent,
+  PositionComponent,
+  CircleComponent,
+]);
+const circles = world.queries.register([CircleComponent, PositionComponent]);
+const intersecting = world.queries.register([IntersectionComponent]);
 
 // Systems
 function movement(delta: number) {
   for (const entity of moving) {
-    world.components.mutate(
-      entity,
-      [movementComponent, circleComponent],
-      (
-        [movement, circle]: [
-          {
-            velocity: { x: number; y: number };
-            acceleration: { x: number; y: number };
-          },
-          {
-            velocity: { x: number; y: number };
-            acceleration: { x: number; y: number };
-            radius: number;
-            position: { x: number; y: number };
-          },
-        ],
-      ) => {
-        circle.position.x += movement.velocity.x * movement.acceleration.x *
-          delta * SPEED_MULTIPLIER;
-        circle.position.y += movement.velocity.y * movement.acceleration.y *
-          delta * SPEED_MULTIPLIER;
+    const position = world.components.get(entity, PositionComponent)!;
+    const velocity = world.components.get(entity, VelocityComponent)!;
+    const acceleration = world.components.get(entity, AccelerationComponent)!;
+    const circle = world.components.get(entity, CircleComponent)!;
 
-        if (movement.acceleration.x > 1) {
-          movement.acceleration.x -= delta * SPEED_MULTIPLIER;
-        }
-        if (movement.acceleration.y > 1) {
-          movement.acceleration.y -= delta * SPEED_MULTIPLIER;
-        }
-        if (movement.acceleration.x < 1) movement.acceleration.x = 1;
-        if (movement.acceleration.y < 1) movement.acceleration.y = 1;
+    position.x += velocity.x * acceleration.x *
+      delta * SPEED_MULTIPLIER;
+    position.y += velocity.y * acceleration.y *
+      delta * SPEED_MULTIPLIER;
 
-        if (circle.position.y + circle.radius < 0) {
-          circle.position.y = height + circle.radius;
-        }
+    if (acceleration.x > 1) {
+      acceleration.x -= delta * SPEED_MULTIPLIER;
+    }
+    if (acceleration.y > 1) {
+      acceleration.y -= delta * SPEED_MULTIPLIER;
+    }
 
-        if (circle.position.y - circle.radius > height) {
-          circle.position.y = -circle.radius;
-        }
+    if (acceleration.x < 1) {
+      acceleration.x = 1;
+    }
+    if (acceleration.y < 1) {
+      acceleration.y = 1;
+    }
 
-        if (circle.position.x - circle.radius > width) {
-          circle.position.x = 0;
-        }
+    if (position.y + circle.radius < 0) {
+      position.y = height + circle.radius;
+    }
+    if (position.y - circle.radius > height) {
+      position.y = -circle.radius;
+    }
 
-        if (circle.position.x + circle.radius < 0) {
-          circle.position.x = width;
-        }
-      },
-    );
+    if (position.x - circle.radius > width) {
+      position.x = 0;
+    }
+    if (position.x + circle.radius < 0) {
+      position.x = width;
+    }
+
+    world.components.set(entity, PositionComponent, position);
+    world.components.set(entity, AccelerationComponent, acceleration);
   }
 }
 
@@ -98,38 +115,36 @@ function intersection() {
   for (let i = 0; i < entities.length; i++) {
     const entityA = entities[i];
 
-    if (world.components.has(entityA, 1 << intersectingComponent)) {
-      world.components.set(entityA, intersectingComponent, []);
+    if (world.components.has(entityA, IntersectionComponent)) {
+      world.components.set(entityA, IntersectionComponent, []);
     }
 
-    const circleA = world.components.get(entityA, circleComponent);
+    const circleA = world.components.get(entityA, CircleComponent)!;
+    const positionA = world.components.get(entityA, PositionComponent)!;
 
     for (let j = i + 1; j < entities.length; j++) {
       const entityB = entities[j];
-      const circleB = world.components.get(entityB, circleComponent);
+      const circleB = world.components.get(entityB, CircleComponent)!;
+      const positionB = world.components.get(entityB, PositionComponent)!;
 
-      const intersect = intersects(circleA, circleB);
-      if (intersect !== false) {
-        if (!world.components.has(entityA, 1 << intersectingComponent)) {
-          world.components.set(entityA, intersectingComponent, []);
+      const intersect = intersects(circleA, positionA, circleB, positionB);
+      if (intersect !== undefined) {
+        if (!world.components.has(entityA, IntersectionComponent)) {
+          world.components.set(entityA, IntersectionComponent, []);
         }
 
-        world.components.mutate(
-          entityA,
-          [intersectingComponent],
-          ([points]: [unknown[]]) => {
-            points.push(intersect);
-          },
-        );
+        const points = world.components.get(entityA, IntersectionComponent)!;
+        points.push(intersect);
+        world.components.set(entityA, IntersectionComponent, points);
       }
     }
 
     if (
-      world.components.has(entityA, 1 << intersectingComponent) &&
-      (world.components.get(entityA, intersectingComponent) as unknown[])
+      world.components.has(entityA, IntersectionComponent) &&
+      (world.components.get(entityA, IntersectionComponent) as [])
           .length === 0
     ) {
-      world.components.remove(entityA, intersectingComponent);
+      world.components.remove(entityA, IntersectionComponent);
     }
   }
 }
@@ -139,17 +154,13 @@ function render() {
   context.fillRect(0, 0, width, height);
 
   for (const entity of circles) {
-    const circle = world.components.get(entity, circleComponent) as {
-      velocity: { x: number; y: number };
-      acceleration: { x: number; y: number };
-      radius: number;
-      position: { x: number; y: number };
-    };
+    const circle = world.components.get(entity, CircleComponent)!;
+    const position = world.components.get(entity, PositionComponent)!;
 
     context.beginPath();
     context.arc(
-      circle.position.x,
-      circle.position.y,
+      position.x,
+      position.y,
       circle.radius,
       0,
       2 * Math.PI,
@@ -163,8 +174,8 @@ function render() {
   for (const entity of intersecting) {
     const intersect = world.components.get(
       entity,
-      intersectingComponent,
-    ) as number[][];
+      IntersectionComponent,
+    )!;
     for (const points of intersect) {
       context.lineWidth = 2;
       context.strokeStyle = "#ff9";
@@ -187,18 +198,22 @@ function random(a: number, b: number) {
   return Math.random() * (b - a) + a;
 }
 
-// deno-lint-ignore no-explicit-any
-function intersects(circleA: any, circleB: any) {
-  const dx = circleB.position.x - circleA.position.x;
-  const dy = circleB.position.y - circleA.position.y;
+function intersects(
+  circleA: { radius: number },
+  positionA: { x: number; y: number },
+  circleB: { radius: number },
+  positionB: { x: number; y: number },
+): [number, number, number, number] | undefined {
+  const dx = positionB.x - positionA.x;
+  const dy = positionB.y - positionA.y;
 
   const d = Math.sqrt(dy * dy + dx * dx);
 
   if (d > circleA.radius + circleB.radius) {
-    return false;
+    return;
   }
   if (d < Math.abs(circleA.radius - circleB.radius)) {
-    return false;
+    return;
   }
 
   const a = (circleA.radius * circleA.radius -
@@ -206,8 +221,8 @@ function intersects(circleA: any, circleB: any) {
     d * d) /
     (2.0 * d);
 
-  const x2 = circleA.position.x + (dx * a) / d;
-  const y2 = circleA.position.y + (dy * a) / d;
+  const x2 = positionA.x + (dx * a) / d;
+  const y2 = positionA.y + (dy * a) / d;
 
   const h = Math.sqrt(circleA.radius * circleA.radius - a * a);
 
@@ -239,15 +254,20 @@ function drawLine(a: number, b: number, c: number, d: number) {
 for (let i = 0; i < NUM_ELEMENTS; i++) {
   const entity = world.entities.spawn();
 
-  world.components.set(entity, circleComponent, {
-    position: { x: random(0, width), y: random(0, height) },
-    radius: random(20, 100),
-    velocity: { x: 0, y: 0 },
-    acceleration: { x: 0, y: 0 },
+  world.components.set(entity, PositionComponent, {
+    x: Math.random() * width,
+    y: Math.random() * height,
   });
-  world.components.set(entity, movementComponent, {
-    velocity: { x: random(-20, 20), y: random(-20, 20) },
-    acceleration: { x: 0, y: 0 },
+  world.components.set(entity, VelocityComponent, {
+    x: random(-20, 20),
+    y: random(-20, 20),
+  });
+  world.components.set(entity, AccelerationComponent, {
+    x: 0,
+    y: 0,
+  });
+  world.components.set(entity, CircleComponent, {
+    radius: random(20, 100),
   });
 }
 
