@@ -19,6 +19,10 @@ export class ReferenceType<T> implements Type<T> {
   push(value: T): number {
     return this.store.push(value) - 1;
   }
+
+  toJSON(): string {
+    return JSON.stringify(this.store);
+  }
 }
 
 export const reference = new ReferenceType();

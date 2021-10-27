@@ -1,23 +1,18 @@
-import { Components } from "./components.ts";
-import { Type } from "./deps.ts";
-import { Entities, GrowableEntities } from "./entities.ts";
+import { Component, ComponentConstructor } from "./components/component.ts";
+import { Components } from "./components/components.ts";
+import { ComponentStoreConstructor } from "./components/component_store.ts";
+import { Entities } from "./entities/entities.ts";
+import { GrowableEntities } from "./entities/growable_entities.ts";
 import { Queries } from "./queries.ts";
 
 export class World {
-  #entities: Entities = new GrowableEntities();
+  #entities: Entities;
   #components: Components = new Components();
   #queries: Queries = new Queries();
 
-  // spawn(components: [number, unknown][]): number {
-  //   const entity = this.entities.spawn();
-  //   let mask = 0;
-  //   for (const [component, value] of components) {
-  //     mask |= 1 << component;
-  //     this.components.stores[component].set(entity, value);
-  //   }
-  //   this.entities.set(entity, mask);
-  //   return entity;
-  // }
+  constructor(entities: Entities = new GrowableEntities()) {
+    this.#entities = entities;
+  }
 
   entities = {
     spawn: () => {
@@ -37,48 +32,72 @@ export class World {
   };
 
   components = {
-    register: (type: Type<unknown>) => {
-      return this.#components.register(type, this.#entities.length);
+    register: <
+      V,
+      T extends Component<V>,
+      C extends ComponentConstructor<T>,
+      S extends ComponentStoreConstructor<T, C, V, A>,
+      // deno-lint-ignore no-explicit-any
+      A extends any[],
+    >(
+      Component: C,
+      Store: S,
+      ...args: A
+    ) => {
+      this.#components.register(Component, Store, ...args);
     },
-    set: (entity: number, component: number, value: unknown) => {
-      this.#components.set(entity, component, value);
+    set: <V>(
+      entity: number,
+      Component: ComponentConstructor<Component<V>>,
+      value: V,
+    ) => {
+      this.#components.set(entity, Component, value);
       this.#queries.update(
         entity,
-        this.#entities.enable(entity, 1 << component),
+        this.#entities.enable(
+          entity,
+          Component.mask!,
+        ),
       );
     },
-    get: (entity: number, component: number) => {
-      if (this.components.has(entity, 1 << component)) {
-        return this.#components.get(entity, component);
+    get: <V>(
+      entity: number,
+      Component: ComponentConstructor<Component<V>>,
+    ) => {
+      if (this.components.has(entity, Component)) {
+        return this.#components.get<V>(entity, Component);
       }
     },
-    has: (entity: number, mask: number) => {
-      return (this.#entities.get(entity) & mask) === mask;
-    },
-    // mutable: (entity: number, component: number) => {
-    //   const mask = 1 << component;
-    //   if ((this.#entities.get(entity) & mask) === mask) {
-    //     return this.#components.mutable(entity, component);
-    //   }
-    // },
-    mutate: <T extends unknown[]>(
+    has: <T extends Component<unknown>>(
       entity: number,
-      components: number[],
-      mutator: (components: T) => void,
+      Component: ComponentConstructor<T>,
     ) => {
-      this.#components.mutate(entity, components, mutator);
+      return (this.#entities.get(entity) & Component.mask!) === Component.mask!;
     },
-    remove: (entity: number, component: number) => {
-      this.#components.remove(entity, component);
+    remove: <T extends Component<unknown>>(
+      entity: number,
+      Component: ComponentConstructor<T>,
+    ) => {
+      this.#components.remove(entity, Component);
       this.#queries.update(
         entity,
-        this.#entities.disable(entity, 1 << component),
+        this.#entities.disable(entity, Component.mask!),
       );
     },
   };
 
   queries = {
-    register: (query: number) => {
+    register: (
+      query: number | ComponentConstructor<Component<unknown>>[],
+    ) => {
+      if (typeof query !== "number") {
+        let mask = 0;
+        for (const Component of query) {
+          mask |= Component.mask!;
+        }
+        query = mask;
+      }
+
       const entities = this.#queries.register(query);
 
       for (const [entity, mask] of this.#entities.entries()) {
@@ -87,7 +106,17 @@ export class World {
 
       return entities;
     },
-    unregister: (query: number) => {
+    unregister: (
+      query: number | ComponentConstructor<Component<unknown>>[],
+    ) => {
+      if (typeof query !== "number") {
+        let mask = 0;
+        for (const Component of query) {
+          mask |= Component.mask!;
+        }
+        query = mask;
+      }
+
       this.#queries.unregister(query);
     },
   };

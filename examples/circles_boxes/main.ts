@@ -1,8 +1,14 @@
 /// <reference lib="dom" />
 
-import { World } from "../../core/mod.ts";
+import { Component, World } from "../../core/mod.ts";
 import { f64, Struct, u8 } from "https://deno.land/x/byte_type@0.1.5/mod.ts";
-import { empty } from "../../std/util/empty_type.ts";
+import {
+  TypeComponent,
+  TypeComponentStore,
+} from "../../core/components/type_component_store.ts";
+import {
+  EmptyComponentStore,
+} from "../../core/components/empty_component_store.ts";
 
 // Constants
 const NUM_ELEMENTS = 50;
@@ -20,53 +26,62 @@ const context = canvas.getContext("2d")!;
 const world = new World();
 
 // Components
-const positionComponent = world.components.register(
-  new Struct({ x: f64, y: f64 }),
-);
-const velocityComponent = world.components.register(
-  new Struct({ x: f64, y: f64 }),
-);
-const shapeComponent = world.components.register(u8);
-const renderableComponent = world.components.register(empty);
+class PositionComponent extends TypeComponent<{ x: number; y: number }> {
+  static type = new Struct({ x: f64, y: f64 });
+  value: { x: number; y: number } = { x: 0, y: 0 };
+}
+
+class VelocityComponent extends TypeComponent<{ x: number; y: number }> {
+  static type = new Struct({ x: f64, y: f64 });
+  value: { x: number; y: number } = { x: 0, y: 0 };
+}
+
+class ShapeComponent extends TypeComponent<number> {
+  static type = u8;
+  value = 0;
+}
+
+class RenderableComponent extends Component<undefined> {
+  value = undefined;
+}
+
+world.components.register(PositionComponent, TypeComponentStore);
+world.components.register(VelocityComponent, TypeComponentStore);
+world.components.register(ShapeComponent, TypeComponentStore);
+world.components.register(RenderableComponent, EmptyComponentStore);
 
 // Queries
-const moving = world.queries.register(
-  (1 << velocityComponent) | (1 << positionComponent),
-);
-const renderables = world.queries.register(
-  (1 << renderableComponent) | (1 << shapeComponent),
-);
+const moving = world.queries.register([VelocityComponent, ShapeComponent]);
+const renderables = world.queries.register([
+  RenderableComponent,
+  ShapeComponent,
+]);
 
 // Systems
 function movement(delta: number) {
   for (const entity of moving) {
-    world.components.mutate(
-      entity,
-      [velocityComponent, positionComponent],
-      (
-        [velocity, position]: [
-          { x: number; y: number },
-          { x: number; y: number },
-        ],
-      ) => {
-        position.x += velocity.x * delta;
-        position.y += velocity.y * delta;
+    const velocity = world.components.get(entity, VelocityComponent)!;
+    const position = world.components.get(entity, PositionComponent)!;
 
-        if (position.x > width + SHAPE_HALF_SIZE) {
-          position.x = -SHAPE_HALF_SIZE;
-        }
-        if (position.x < -SHAPE_HALF_SIZE) {
-          position.x = width +
-            SHAPE_HALF_SIZE;
-        }
-        if (position.y > height + SHAPE_HALF_SIZE) {
-          position.y = -SHAPE_HALF_SIZE;
-        }
-        if (position.y < -SHAPE_HALF_SIZE) {
-          position.y = height + SHAPE_HALF_SIZE;
-        }
-      },
-    );
+    position.x += velocity.x * delta;
+    position.y += velocity.y * delta;
+
+    if (position.x > width + SHAPE_HALF_SIZE) {
+      position.x = -SHAPE_HALF_SIZE;
+    }
+    if (position.x < -SHAPE_HALF_SIZE) {
+      position.x = width +
+        SHAPE_HALF_SIZE;
+    }
+    if (position.y > height + SHAPE_HALF_SIZE) {
+      position.y = -SHAPE_HALF_SIZE;
+    }
+    if (position.y < -SHAPE_HALF_SIZE) {
+      position.y = height + SHAPE_HALF_SIZE;
+    }
+
+    world.components.set(entity, VelocityComponent, velocity);
+    world.components.set(entity, PositionComponent, position);
   }
 }
 
@@ -75,11 +90,8 @@ function render() {
   context.fillRect(0, 0, width, height);
 
   for (const entity of renderables) {
-    const shape = world.components.get(entity, shapeComponent) as number;
-    const position = world.components.get(entity, positionComponent) as {
-      x: number;
-      y: number;
-    };
+    const shape = world.components.get(entity, ShapeComponent)!;
+    const position = world.components.get(entity, PositionComponent)!;
 
     if (shape === 0) {
       context.beginPath();
@@ -113,32 +125,20 @@ function render() {
   }
 }
 
-// Helper functions
-function getRandomVelocity() {
-  return {
-    x: SPEED_MULTIPLIER * (2 * Math.random() - 1),
-    y: SPEED_MULTIPLIER * (2 * Math.random() - 1),
-  };
-}
-
-function getRandomPosition() {
-  return {
-    x: Math.random() * width,
-    y: Math.random() * height,
-  };
-}
-
-function getRandomShape() {
-  return Math.round(Math.random());
-}
-
 // Spawn
 for (let i = 0; i < NUM_ELEMENTS; i++) {
   const entity = world.entities.spawn();
-  world.components.set(entity, positionComponent, getRandomPosition());
-  world.components.set(entity, velocityComponent, getRandomVelocity());
-  world.components.set(entity, shapeComponent, getRandomShape());
-  world.components.set(entity, renderableComponent, null);
+
+  world.components.set(entity, PositionComponent, {
+    x: Math.random() * width,
+    y: Math.random() * height,
+  });
+  world.components.set(entity, VelocityComponent, {
+    x: SPEED_MULTIPLIER * (2 * Math.random() - 1),
+    y: SPEED_MULTIPLIER * (2 * Math.random() - 1),
+  });
+  world.components.set(entity, ShapeComponent, Math.round(Math.random()));
+  world.components.set(entity, RenderableComponent, new RenderableComponent());
 }
 
 // Run

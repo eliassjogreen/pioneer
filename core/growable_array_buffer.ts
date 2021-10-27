@@ -1,4 +1,10 @@
-export class GrowableBuffer {
+export interface GrowableArrayBufferLike {
+  readonly uint8array: Uint8Array;
+  readonly buffer: ArrayBuffer;
+  grow(size: number): void;
+}
+
+export class GrowableArrayBuffer implements GrowableArrayBufferLike {
   #buffer: Uint8Array;
 
   get uint8array(): Uint8Array {
