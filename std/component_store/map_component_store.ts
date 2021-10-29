@@ -1,4 +1,4 @@
-import { Component, ComponentConstructor, ComponentStore } from "../deps.ts";
+import { Component, ComponentConstructor, ComponentStore, Entity } from "../deps.ts";
 
 export class MapComponentStore<V> implements ComponentStore<V> {
   #components: Map<number, V> = new Map();
@@ -8,15 +8,15 @@ export class MapComponentStore<V> implements ComponentStore<V> {
     this.Component = Component;
   }
 
-  get(entity: number): V | undefined {
+  get(entity: Entity): V | undefined {
     return this.#components.get(entity);
   }
 
-  set(entity: number, component: V) {
+  set(entity: Entity, component: V) {
     this.#components.set(entity, component);
   }
 
-  remove(entity: number) {
+  remove(entity: Entity) {
     this.#components.delete(entity);
   }
 }

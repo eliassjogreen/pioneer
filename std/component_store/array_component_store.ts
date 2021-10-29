@@ -1,4 +1,4 @@
-import { Component, ComponentConstructor, ComponentStore } from "../deps.ts";
+import { Component, ComponentConstructor, ComponentStore, Entity } from "../deps.ts";
 
 export class ArrayComponentStore<V> implements ComponentStore<V> {
   #components: V[] = [];
@@ -8,15 +8,15 @@ export class ArrayComponentStore<V> implements ComponentStore<V> {
     this.Component = Component;
   }
 
-  get(entity: number): V | undefined {
+  get(entity: Entity): V | undefined {
     return this.#components[entity];
   }
 
-  set(entity: number, component: V) {
+  set(entity: Entity, component: V) {
     return this.#components[entity] = component;
   }
 
-  remove(entity: number) {
+  remove(entity: Entity) {
     delete this.#components[entity];
   }
 }

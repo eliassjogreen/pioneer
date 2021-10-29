@@ -15,9 +15,13 @@ export class ArrayComponentStores implements ComponentStores {
     return this.#stores.length;
   }
 
-  register<V, A extends []>(
-    Component: ComponentConstructor<Component<V>>,
-    Store: ComponentStoreConstructor<V, A>,
+  register<
+    V,
+    C extends ComponentConstructor<Component<V>>,
+    A extends [],
+  >(
+    Component: C,
+    Store: ComponentStoreConstructor<V, C, A>,
     ...args: A
   ): void {
     if (this.length >= 62) {

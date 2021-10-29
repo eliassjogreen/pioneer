@@ -2,6 +2,7 @@ import {
   Component,
   ComponentConstructor,
   ComponentStore,
+  Entity,
   GrowableArrayBuffer,
   Type,
 } from "../deps.ts";
@@ -61,17 +62,17 @@ export class TypeComponentStore<V> extends GrowableArrayBuffer
     return length;
   }
 
-  get(index: number): V | undefined {
-    if (index < this.capacity) {
+  get(entity: Entity): V | undefined {
+    if (entity < this.capacity) {
       return this.Component.type.read(
         this.view,
-        this.Component.type.size * index,
+        this.Component.type.size * entity,
       );
     }
   }
 
-  set(index: number, value: V) {
-    const next = index + 1;
+  set(entity: Entity, value: V) {
+    const next = entity + 1;
     if (this.capacity < next) {
       this.capacity = next;
       this.#length = next;
@@ -79,13 +80,13 @@ export class TypeComponentStore<V> extends GrowableArrayBuffer
 
     this.Component.type.write(
       this.view,
-      this.Component.type.size * index,
+      this.Component.type.size * entity,
       value,
     );
   }
 
-  remove(index: number) {
-    const start = this.Component.type.size * index;
+  remove(entity: Entity) {
+    const start = this.Component.type.size * entity;
     const end = start + this.Component.type.size;
     this.uint8array.fill(0, start, end);
   }

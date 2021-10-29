@@ -1,4 +1,4 @@
-import { Component, ComponentConstructor, ComponentStore } from "../deps.ts";
+import { Component, ComponentConstructor, ComponentStore, Entity } from "../deps.ts";
 
 export class EmptyComponentStore implements ComponentStore<undefined> {
   readonly Component: ComponentConstructor<Component<undefined>>;
@@ -7,11 +7,11 @@ export class EmptyComponentStore implements ComponentStore<undefined> {
     this.Component = Component;
   }
 
-  get(_entity: number): undefined {
+  get(_entity: Entity): undefined {
     return undefined;
   }
 
-  set(_entity: number, _component: undefined) {}
+  set(_entity: Entity, _component: undefined) {}
 
-  remove(_entity: number) {}
+  remove(_entity: Entity) {}
 }

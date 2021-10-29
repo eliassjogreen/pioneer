@@ -74,27 +74,27 @@ export class World {
     ): void;
 
     has<V>(
-      entity: number,
+      entity: Entity,
       Component: ComponentConstructor<Component<V>>,
     ): boolean;
 
     get<V>(
-      entity: number,
+      entity: Entity,
       Component: ComponentConstructor<Component<V>>,
     ): V | undefined;
 
     set<V>(
-      entity: number,
+      entity: Entity,
       Component: ComponentConstructor<Component<V>>,
       value: V,
     ): void;
 
     remove<T extends Component<unknown>>(
-      entity: number,
+      entity: Entity,
       Component: ComponentConstructor<T>,
     ): void;
 
-    clear(entity: number): void;
+    clear(entity: Entity): void;
   } = Object.freeze(Object.defineProperties(
     {
       length: 0,
@@ -112,7 +112,7 @@ export class World {
       },
 
       has: <V>(
-        entity: number,
+        entity: Entity,
         Component: ComponentConstructor<Component<V>>,
       ): boolean => {
         return (this.entities.get(entity) & Component.mask!) ===
@@ -120,7 +120,7 @@ export class World {
       },
 
       get: <V>(
-        entity: number,
+        entity: Entity,
         Component: ComponentConstructor<Component<V>>,
       ): V | undefined => {
         if (this.components.has(entity, Component)) {
@@ -129,7 +129,7 @@ export class World {
       },
 
       set: <V>(
-        entity: number,
+        entity: Entity,
         Component: ComponentConstructor<Component<V>>,
         value: V,
       ): void => {
@@ -141,7 +141,7 @@ export class World {
       },
 
       remove: <T extends Component<unknown>>(
-        entity: number,
+        entity: Entity,
         Component: ComponentConstructor<T>,
       ): void => {
         this.#components.remove(entity, Component);
@@ -151,7 +151,7 @@ export class World {
         );
       },
 
-      clear: (entity: number): void => {
+      clear: (entity: Entity): void => {
         this.#components.clear(entity);
         this.#queries.refresh(entity, 0);
       },
