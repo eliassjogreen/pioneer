@@ -1,17 +1,19 @@
 /// <reference lib="dom" />
 
-import { Component, World } from "../../core/mod.ts";
 import { f64, Struct, u8 } from "https://deno.land/x/byte_type@0.1.5/mod.ts";
+
+import { Component, World } from "../../core/mod.ts";
+import { GrowableEntityStore } from "../../std/entity_store/growable_entity_store.ts";
+import { ArrayComponentStores } from "../../std/component_stores/array_component_stores.ts";
+import { ArrayQueryStore } from "../../std/query_store/array_query_store.ts";
 import {
   TypeComponent,
   TypeComponentStore,
-} from "../../core/components/type_component_store.ts";
-import {
-  EmptyComponentStore,
-} from "../../core/components/empty_component_store.ts";
+} from "../../std/component_store/type_component_store.ts";
+import { EmptyComponentStore } from "../../std/component_store/empty_component_store.ts";
 
 // Constants
-const NUM_ELEMENTS = 50;
+const NUM_ELEMENTS = 250;
 const SPEED_MULTIPLIER = 0.3;
 const SHAPE_SIZE = 50;
 const SHAPE_HALF_SIZE = SHAPE_SIZE / 2;
@@ -23,7 +25,11 @@ const height = canvas.height = window.innerHeight;
 const context = canvas.getContext("2d")!;
 
 // World
-const world = new World();
+const world = new World(
+  new GrowableEntityStore(NUM_ELEMENTS),
+  new ArrayComponentStores(),
+  new ArrayQueryStore(),
+);
 
 // Components
 class PositionComponent extends TypeComponent<{ x: number; y: number }> {
