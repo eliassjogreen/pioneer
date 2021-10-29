@@ -1,15 +1,15 @@
-import { Entities } from "./entities.ts";
+import { Entity, EntityStore, Mask } from "../deps.ts";
 
-export class DynamicEntities implements Entities {
-  #free: number[] = [];
-  #entities: number[] = [];
+export class DynamicEntityStore implements EntityStore {
+  #free: Entity[] = [];
+  #entities: Mask[] = [];
   #length = 0;
 
   get length(): number {
     return this.#length;
   }
 
-  spawn(): number {
+  spawn(): Entity {
     const entity = this.#free.shift() ?? this.#entities.length;
     if (entity === this.#entities.length) {
       this.#entities.push(0);
@@ -18,32 +18,32 @@ export class DynamicEntities implements Entities {
     return entity;
   }
 
-  kill(entity: number): void {
+  kill(entity: Entity): void {
     this.#entities[entity] = 0;
     this.#free.push(entity);
     this.#length -= 1;
   }
 
-  get(entity: number): number {
+  get(entity: Entity): Mask {
     return this.#entities[entity];
   }
 
-  set(entity: number, mask: number): number {
+  set(entity: Entity, mask: Mask): Mask {
     this.#entities[entity] = mask;
     return this.get(entity);
   }
 
-  enable(entity: number, mask: number): number {
+  enable(entity: Entity, mask: Mask): Mask {
     this.#entities[entity] |= mask;
     return this.get(entity);
   }
 
-  disable(entity: number, mask: number): number {
+  disable(entity: Entity, mask: Mask): Mask {
     this.#entities[entity] &= ~mask;
     return this.get(entity);
   }
 
-  entries(): [number, number][] {
+  entries(): [Entity, Mask][] {
     return [...this.#entities.entries()];
   }
 }

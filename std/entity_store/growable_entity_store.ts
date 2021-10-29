@@ -1,16 +1,16 @@
-import { GrowableArrayBuffer } from "../growable_array_buffer.ts";
-import { Entities } from "./entities.ts";
+import { Entity, EntityStore, GrowableArrayBuffer, Mask } from "../deps.ts";
 
-export class GrowableEntities extends GrowableArrayBuffer implements Entities {
+export class GrowableEntityStore extends GrowableArrayBuffer
+  implements EntityStore {
   #entities: Float64Array = new Float64Array(this.buffer);
   #free: number[] = [];
   #length = 0;
 
-  get length() {
+  get length(): number {
     return this.#length;
   }
 
-  get capacity() {
+  get capacity(): number {
     return this.#entities.length;
   }
 
@@ -32,7 +32,7 @@ export class GrowableEntities extends GrowableArrayBuffer implements Entities {
     }
   }
 
-  spawn(): number {
+  spawn(): Entity {
     if (this.#free.length === 0) {
       this.capacity *= 2;
     }
@@ -44,17 +44,17 @@ export class GrowableEntities extends GrowableArrayBuffer implements Entities {
     return entity;
   }
 
-  kill(entity: number): void {
+  kill(entity: Entity): void {
     this.#entities[entity] = 0;
     this.#free.push(entity);
     this.#length -= 1;
   }
 
-  get(entity: number): number {
+  get(entity: Entity): Mask {
     return this.#entities[entity];
   }
 
-  set(entity: number, mask: number): number {
+  set(entity: Entity, mask: Mask): Mask {
     const next = entity + 1;
     if (this.capacity < next) {
       this.capacity = next;
@@ -65,7 +65,7 @@ export class GrowableEntities extends GrowableArrayBuffer implements Entities {
     return this.get(entity);
   }
 
-  enable(entity: number, mask: number): number {
+  enable(entity: Entity, mask: Mask): Mask {
     const next = entity + 1;
     if (this.capacity < next) {
       this.capacity = next;
@@ -76,7 +76,7 @@ export class GrowableEntities extends GrowableArrayBuffer implements Entities {
     return this.get(entity);
   }
 
-  disable(entity: number, mask: number): number {
+  disable(entity: Entity, mask: Mask): Mask {
     const next = entity + 1;
     if (this.capacity < next) {
       this.capacity = next;
@@ -87,13 +87,13 @@ export class GrowableEntities extends GrowableArrayBuffer implements Entities {
     return this.get(entity);
   }
 
-  entries(): [number, number][] {
+  entries(): [Entity, Mask][] {
     return [...this.#entities.entries()].filter(([index]) =>
       !this.#free.includes(index)
     );
   }
 
-  grow(size?: number) {
+  grow(size?: number): void {
     super.grow(size);
     this.#entities = new Float64Array(this.buffer);
   }

@@ -1,5 +1,4 @@
-import { assertEquals } from "./deps.ts";
-import { GrowableArrayBuffer } from "../core/growable_array_buffer.ts";
+import { assertEquals, GrowableArrayBuffer } from "./deps.ts";
 
 const inital = 8;
 
