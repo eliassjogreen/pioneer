@@ -1,4 +1,6 @@
-import { Component, ComponentConstructor, ComponentStore, Entity } from "../deps.ts";
+import { Component, ComponentConstructor } from "../component.ts";
+import { Entity } from "../entity.ts";
+import { ComponentStore } from "./component_store.ts";
 
 export class EmptyComponentStore implements ComponentStore<undefined> {
   readonly Component: ComponentConstructor<Component<undefined>>;

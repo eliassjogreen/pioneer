@@ -1,16 +1,12 @@
 /// <reference lib="dom" />
 
-import { f64, Struct } from "https://deno.land/x/byte_type@0.1.5/mod.ts";
-
-import { Component, World } from "../../core/mod.ts";
-import { GrowableEntityStore } from "../../std/entity_store/growable_entity_store.ts";
-import { ArrayComponentStores } from "../../std/component_stores/array_component_stores.ts";
-import { ArrayQueryStore } from "../../std/query_store/array_query_store.ts";
-import { ArrayComponentStore } from "../../std/component_store/array_component_store.ts";
 import {
-  TypeComponent,
-  TypeComponentStore,
-} from "../../std/component_store/type_component_store.ts";
+  ArrayComponentStore,
+  Component,
+  TypedArrayComponent,
+  TypedArrayComponentStore,
+  World,
+} from "../../core/mod.ts";
 
 // Constants
 const SPEED_MULTIPLIER = 0.001;
@@ -23,30 +19,80 @@ const height = canvas.height = window.innerHeight;
 const context = canvas.getContext("2d")!;
 
 // World
-const world = new World(
-  new GrowableEntityStore(NUM_ELEMENTS),
-  new ArrayComponentStores(),
-  new ArrayQueryStore(),
-);
+const world = new World();
 
 // Components
-class PositionComponent extends TypeComponent<{ x: number; y: number }> {
-  static type = new Struct({ x: f64, y: f64 });
+class PositionComponent extends TypedArrayComponent<{ x: number; y: number }> {
+  static TypedArray = Float64Array;
+  static elements = 2;
+
+  static write(buffer: Float64Array, value: { x: number; y: number }) {
+    buffer[0] = value.x;
+    buffer[1] = value.y;
+  }
+
+  static read(buffer: Float64Array): { x: number; y: number } {
+    return {
+      x: buffer[0],
+      y: buffer[1],
+    };
+  }
+
   value = { x: 0, y: 0 };
 }
 
-class VelocityComponent extends TypeComponent<{ x: number; y: number }> {
-  static type = new Struct({ x: f64, y: f64 });
+class VelocityComponent extends TypedArrayComponent<{ x: number; y: number }> {
+  static TypedArray = Float64Array;
+  static elements = 2;
+
+  static write(buffer: Float64Array, value: { x: number; y: number }) {
+    buffer[0] = value.x;
+    buffer[1] = value.y;
+  }
+
+  static read(buffer: Float64Array): { x: number; y: number } {
+    return {
+      x: buffer[0],
+      y: buffer[1],
+    };
+  }
+
   value = { x: 0, y: 0 };
 }
 
-class AccelerationComponent extends TypeComponent<{ x: number; y: number }> {
-  static type = new Struct({ x: f64, y: f64 });
+class AccelerationComponent
+  extends TypedArrayComponent<{ x: number; y: number }> {
+  static TypedArray = Float64Array;
+  static elements = 2;
+
+  static write(buffer: Float64Array, value: { x: number; y: number }) {
+    buffer[0] = value.x;
+    buffer[1] = value.y;
+  }
+
+  static read(buffer: Float64Array): { x: number; y: number } {
+    return {
+      x: buffer[0],
+      y: buffer[1],
+    };
+  }
+
   value = { x: 0, y: 0 };
 }
 
-class CircleComponent extends TypeComponent<{ radius: number }> {
-  static type = new Struct({ radius: f64 });
+class CircleComponent extends TypedArrayComponent<{ radius: number }> {
+  static TypedArray = Float64Array;
+  static elements = 1;
+
+  static write(buffer: Float64Array, value: { radius: number }) {
+    buffer[0] = value.radius;
+  }
+
+  static read(buffer: Float64Array): { radius: number } {
+    return {
+      radius: buffer[0],
+    };
+  }
   value = { radius: 0 };
 }
 
@@ -55,10 +101,10 @@ class IntersectionComponent
   value: [number, number, number, number][] = [];
 }
 
-world.components.register(PositionComponent, TypeComponentStore);
-world.components.register(VelocityComponent, TypeComponentStore);
-world.components.register(AccelerationComponent, TypeComponentStore);
-world.components.register(CircleComponent, TypeComponentStore);
+world.components.register(PositionComponent, TypedArrayComponentStore);
+world.components.register(VelocityComponent, TypedArrayComponentStore);
+world.components.register(AccelerationComponent, TypedArrayComponentStore);
+world.components.register(CircleComponent, TypedArrayComponentStore);
 world.components.register(IntersectionComponent, ArrayComponentStore);
 
 // Queries

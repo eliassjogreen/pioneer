@@ -1,7 +1,19 @@
-import { Entity, EntityStore, Mask } from "../deps.ts";
+import { Entity, Mask } from "./entity.ts";
 
-export class FixedEntityStore implements EntityStore {
-  #entities: Float64Array;
+export interface EntityStore {
+  readonly length: number;
+
+  spawn(): Entity;
+  kill(entity: Entity): void;
+  get(entity: Entity): Mask;
+  set(entity: Entity, mask: Mask): Mask;
+  enable(entity: Entity, mask: Mask): Mask;
+  disable(entity: Entity, mask: Mask): Mask;
+  entries(): [Entity, Mask][];
+}
+
+export class DefaultEntityStore implements EntityStore {
+  #entities: Mask[] = [];
   #free: Entity[] = [];
   #length = 0;
 
@@ -9,24 +21,11 @@ export class FixedEntityStore implements EntityStore {
     return this.#length;
   }
 
-  get capacity(): number {
-    return this.#entities.length;
-  }
-
-  constructor(capacity: number) {
-    this.#entities = new Float64Array(capacity);
-
-    for (let i = 0; i < capacity; i++) {
-      this.#free.push(i);
-    }
-  }
-
   spawn(): Entity {
-    const entity = this.#free.shift();
-    if (entity === undefined) {
-      throw new RangeError("Too many entities");
+    const entity = this.#free.shift() ?? this.#entities.length;
+    if (entity === this.#entities.length) {
+      this.#entities.push(0);
     }
-    this.#entities[entity] = 0;
     this.#length += 1;
     return entity;
   }
@@ -57,8 +56,6 @@ export class FixedEntityStore implements EntityStore {
   }
 
   entries(): [Entity, Mask][] {
-    return [...this.#entities.entries()].filter(([index]) =>
-      !this.#free.includes(index)
-    );
+    return [...this.#entities.entries()];
   }
 }

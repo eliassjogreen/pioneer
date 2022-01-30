@@ -1,16 +1,11 @@
 /// <reference lib="dom" />
 
-import { f64, Struct, u8 } from "https://deno.land/x/byte_type@0.1.5/mod.ts";
-
-import { Component, World } from "../../core/mod.ts";
-import { GrowableEntityStore } from "../../std/entity_store/growable_entity_store.ts";
-import { ArrayComponentStores } from "../../std/component_stores/array_component_stores.ts";
-import { ArrayQueryStore } from "../../std/query_store/array_query_store.ts";
 import {
-  TypeComponent,
-  TypeComponentStore,
-} from "../../std/component_store/type_component_store.ts";
-import { EmptyComponentStore } from "../../std/component_store/empty_component_store.ts";
+  Component,
+  TypedArrayComponent,
+  TypedArrayComponentStore,
+  World,
+} from "../../core/mod.ts";
 
 // Constants
 const NUM_ELEMENTS = 250;
@@ -25,25 +20,59 @@ const height = canvas.height = window.innerHeight;
 const context = canvas.getContext("2d")!;
 
 // World
-const world = new World(
-  new GrowableEntityStore(NUM_ELEMENTS),
-  new ArrayComponentStores(),
-  new ArrayQueryStore(),
-);
+const world = new World();
 
 // Components
-class PositionComponent extends TypeComponent<{ x: number; y: number }> {
-  static type = new Struct({ x: f64, y: f64 });
-  value: { x: number; y: number } = { x: 0, y: 0 };
+class PositionComponent extends TypedArrayComponent<{ x: number; y: number }> {
+  static TypedArray = Float64Array;
+  static elements = 2;
+
+  static write(buffer: Float64Array, value: { x: number; y: number }) {
+    buffer[0] = value.x;
+    buffer[1] = value.y;
+  }
+
+  static read(buffer: Float64Array): { x: number; y: number } {
+    return {
+      x: buffer[0],
+      y: buffer[1],
+    };
+  }
+
+  value = { x: 0, y: 0 };
 }
 
-class VelocityComponent extends TypeComponent<{ x: number; y: number }> {
-  static type = new Struct({ x: f64, y: f64 });
-  value: { x: number; y: number } = { x: 0, y: 0 };
+class VelocityComponent extends TypedArrayComponent<{ x: number; y: number }> {
+  static TypedArray = Float64Array;
+  static elements = 2;
+
+  static write(buffer: Float64Array, value: { x: number; y: number }) {
+    buffer[0] = value.x;
+    buffer[1] = value.y;
+  }
+
+  static read(buffer: Float64Array): { x: number; y: number } {
+    return {
+      x: buffer[0],
+      y: buffer[1],
+    };
+  }
+
+  value = { x: 0, y: 0 };
 }
 
-class ShapeComponent extends TypeComponent<number> {
-  static type = u8;
+class ShapeComponent extends TypedArrayComponent<number> {
+  static TypedArray = Uint8Array;
+  static elements = 1;
+
+  static write(buffer: Uint8Array, value: number) {
+    buffer[0] = value;
+  }
+
+  static read(buffer: Uint8Array): number {
+    return buffer[0];
+  }
+
   value = 0;
 }
 
@@ -51,9 +80,9 @@ class RenderableComponent extends Component<undefined> {
   value = undefined;
 }
 
-world.components.register(PositionComponent, TypeComponentStore);
-world.components.register(VelocityComponent, TypeComponentStore);
-world.components.register(ShapeComponent, TypeComponentStore);
+world.components.register(PositionComponent, TypedArrayComponentStore);
+world.components.register(VelocityComponent, TypedArrayComponentStore);
+world.components.register(ShapeComponent, TypedArrayComponentStore);
 world.components.register(RenderableComponent, EmptyComponentStore);
 
 // Queries
