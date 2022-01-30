@@ -1,14 +1,45 @@
+import { Component, ComponentConstructor } from "./component.ts";
 import {
-  Component,
-  ComponentConstructor,
   ComponentStore,
   ComponentStoreConstructor,
-  ComponentStores,
-  Entity,
-  Mask,
-} from "../deps.ts";
+} from "./component_store/mod.ts";
+import { Entity, Mask } from "./entity.ts";
 
-export class ArrayComponentStores implements ComponentStores {
+export interface ComponentStores {
+  readonly length: number;
+
+  register<
+    V,
+    C extends ComponentConstructor<Component<V>>,
+    A extends [],
+  >(
+    Component: C,
+    Store: ComponentStoreConstructor<V, C, A>,
+    ...args: A
+  ): void;
+
+  get<V>(
+    entity: Entity,
+    Component: ComponentConstructor<Component<V>>,
+  ): V | undefined;
+
+  set<V>(
+    entity: Entity,
+    Component: ComponentConstructor<Component<V>>,
+    value: V,
+  ): void;
+
+  remove<T extends Component<unknown>>(
+    entity: Entity,
+    Component: ComponentConstructor<T>,
+  ): void;
+
+  clear(entity: Entity): void;
+
+  query(mask: Mask): ComponentStore<unknown>[];
+}
+
+export class DefaultComponentStores implements ComponentStores {
   #stores: ComponentStore<unknown>[] = [];
 
   get length(): number {

@@ -1,11 +1,12 @@
-import { Entity, EntityStore, Mask } from "./entity.ts";
+import { DefaultEntityStore, Entity, EntityStore, Mask } from "./entity.ts";
 import {
   Component,
   ComponentConstructor,
   ComponentStoreConstructor,
   ComponentStores,
+  DefaultComponentStores,
 } from "./component.ts";
-import { maskOf, QueryResult, QueryStore } from "./query.ts";
+import { DefaultQueryStore, maskOf, QueryResult, QueryStore } from "./query.ts";
 
 export class World {
   #entities: EntityStore;
@@ -13,23 +14,16 @@ export class World {
   #queries: QueryStore;
 
   constructor(
-    entities: EntityStore,
-    components: ComponentStores,
-    queries: QueryStore,
+    entities: EntityStore = new DefaultEntityStore(),
+    components: ComponentStores = new DefaultComponentStores(),
+    queries: QueryStore = new DefaultQueryStore(),
   ) {
     this.#entities = entities;
     this.#components = components;
     this.#queries = queries;
   }
 
-  readonly entities: {
-    readonly length: number;
-
-    spawn: () => Entity;
-    kill: (entity: Entity) => void;
-    get: (entity: Entity) => number;
-    entries: () => [Entity, Mask][];
-  } = Object.freeze(Object.defineProperties(
+  readonly entities = Object.freeze(Object.defineProperties(
     {
       length: 0,
 
@@ -60,42 +54,7 @@ export class World {
     },
   ));
 
-  readonly components: {
-    readonly length: number;
-
-    register<
-      V,
-      C extends ComponentConstructor<Component<V>>,
-      A extends [],
-    >(
-      Component: C,
-      Store: ComponentStoreConstructor<V, C, A>,
-      ...args: A
-    ): void;
-
-    has<V>(
-      entity: Entity,
-      Component: ComponentConstructor<Component<V>>,
-    ): boolean;
-
-    get<V>(
-      entity: Entity,
-      Component: ComponentConstructor<Component<V>>,
-    ): V | undefined;
-
-    set<V>(
-      entity: Entity,
-      Component: ComponentConstructor<Component<V>>,
-      value: V,
-    ): void;
-
-    remove<T extends Component<unknown>>(
-      entity: Entity,
-      Component: ComponentConstructor<T>,
-    ): void;
-
-    clear(entity: Entity): void;
-  } = Object.freeze(Object.defineProperties(
+  readonly components = Object.freeze(Object.defineProperties(
     {
       length: 0,
 
@@ -165,15 +124,10 @@ export class World {
     },
   ));
 
-  readonly queries: {
-    register(
-      query: Mask | ComponentConstructor<Component<unknown>>[],
-    ): QueryResult;
-    unregister(query: Mask | ComponentConstructor<Component<unknown>>[]): void;
-    get(query: Mask | ComponentConstructor<Component<unknown>>[]): QueryResult;
-  } = Object.freeze(Object.defineProperties(
+  readonly queries = Object.freeze(Object.defineProperties(
     {
       length: 0,
+
       register: (
         query: Mask | ComponentConstructor<Component<unknown>>[],
       ): QueryResult => {
@@ -187,6 +141,7 @@ export class World {
 
         return entities;
       },
+
       unregister: (
         query: Mask | ComponentConstructor<Component<unknown>>[],
       ): void => {
@@ -194,6 +149,7 @@ export class World {
 
         this.#queries.unregister(query);
       },
+
       get: (
         query: Mask | ComponentConstructor<Component<unknown>>[],
       ): QueryResult => {
